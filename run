@@ -1,8 +1,13 @@
 #!/bin/bash          
-
 VERSION='^8.0'
-PROJECT='laravel-app'
-DB='laravel-db'
+PROJECT='laravel_app'
+DB='laravel_db'
+
+
+echo "Getting IP Info"
+INTERFACE="eth0"  # Ganti dengan nama antarmuka yang sesuai
+IP_ADDRESS=$(ifconfig $INTERFACE | grep -oP 'inet \K\S+')
+echo "IP Address: $IP_ADDRESS"
 
 echo "Clear Recent Project"
 docker stop $DB && docker rm $DB
@@ -13,7 +18,7 @@ docker run --rm --interactive --tty --volume $PWD:/app composer create-project l
 
 echo "Create Database"
 sudo mkdir $DB
-docker run -d -p 13306:3306 --name $DB -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes -v "$PWD/$DB":/var/lib/mysql mariadb:latest
+docker run -d -p 13306:3306 --name $DB -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes -e MYSQL_DATABASE=$DB -v "$PWD/$DB":/var/lib/mysql mariadb:latest
 #docker run -d -p 3306:3306 --name $DB -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes -v "$PWD/$DB":/var/lib/mysql mariadb:latest
 
 echo "Build Web Server"
@@ -31,8 +36,9 @@ echo "Fix Permission"
 sudo chmod -R 777 $PROJECT
 
 echo "Change DB"
-sed -i 's/DB_HOST=.*/DB_HOST=10.55.254.115/' $PROJECT/.env
-sed -i 's/DB_DATABASE=.*/DB_DATABASE=laravel-db/' $PROJECT/.env
+sed -i "s/DB_HOST=.*/DB_HOST=$IP_ADDRESS/" $PROJECT/.env
+sed -i "s/DB_PORT=.*/DB_HOST=13306/" $PROJECT/.env
+sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB/" $PROJECT/.env
 
 echo "Done"
 sudo netstat -plunt

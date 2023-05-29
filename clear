@@ -1,6 +1,9 @@
 #!/bin/bash
-sudo docker stop laravel-app laravel-db
-sudo docker rm laravel-app laravel-db
+echo "Stopping container"
+sudo docker stop laravel_app laravel_db
+echo "Remove container"
+sudo docker rm laravel_app laravel_db
+echo "Delete file"
 sudo rm -rf Dockerfile
-sudo rm -rf laravel-*
+sudo rm -rf laravel_*
 

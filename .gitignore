@@ -1,5 +1,6 @@
 .git
 Dockerfile
-laravel-app
-laravel-db
+laravel*
+laravel_app
+laravel_db
 
