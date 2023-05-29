@@ -1,0 +1,8 @@
+# get ip
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' laravel-db
+
+# migrate
+docker exec -it laravel-app php artisan migrate
+
+# exec mysql
+docker exec -it laravel-db mysql -u root -p

@@ -1,0 +1,6 @@
+#!/bin/bash
+sudo docker stop laravel-app laravel-db
+sudo docker rm laravel-app laravel-db
+sudo rm -rf Dockerfile
+sudo rm -rf laravel-*
+

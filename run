@@ -1,0 +1,35 @@
+#!/bin/bash          
+
+VERSION='^8.0'
+PROJECT='laravel-app'
+DB='laravel-db'
+
+echo "Clear Recent Project"
+docker stop $DB && docker rm $DB
+docker stop $PROJECT && docker rm $PROJECT
+
+echo "Create Project Laravel"
+docker run --rm --interactive --tty --volume $PWD:/app composer create-project laravel/laravel:$VERSION $PROJECT
+
+echo "Create Database"
+sudo mkdir $DB
+docker run -d -p 13306:3306 --name $DB -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes -v "$PWD/$DB":/var/lib/mysql mariadb:latest
+#docker run -d -p 3306:3306 --name $DB -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes -v "$PWD/$DB":/var/lib/mysql mariadb:latest
+
+echo "Build Web Server"
+sudo apt install wget -y
+#sudo wget https://gist.githubusercontent.com/dwinurhadia/4bd25d50a3ceb3bc9e57c8bd564fbc97/raw/f08e6a7a51d676e8614699ae3ef02028606d47f4/Dockerfile
+sudo wget https://gist.githubusercontent.com/dwinurhadia/4bd25d50a3ceb3bc9e57c8bd564fbc97/raw/1e20e71a3c84a01de9bbaa75a4c73aaa4d72140b/Dockerfile
+sudo wget https://gist.githubusercontent.com/dwinurhadia/6f97d6c4ea61b3882e6562cfc52acc33/raw/eb9cde2335da0521c999d87ae47a39bebc6ca2ed/htaccess -O $PROJECT/.htaccess 
+sudo docker build -f Dockerfile -t apache-mysql .
+
+
+echo "Running Laravel"
+docker run -d -p 8080:80 --name $PROJECT -v "$PWD/$PROJECT":/var/www/html apache-mysql
+
+echo "Fix Permission"
+sudo chmod -R 777 $PROJECT
+
+echo "Done"
+sudo netstat -plunt
+docker ps -a
