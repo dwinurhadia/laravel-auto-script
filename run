@@ -30,6 +30,10 @@ docker run -d -p 8080:80 --name $PROJECT -v "$PWD/$PROJECT":/var/www/html apache
 echo "Fix Permission"
 sudo chmod -R 777 $PROJECT
 
+echo "Change DB"
+sed -i 's/DB_HOST=.*/DB_HOST=10.55.254.115/' $PROJECT/.env
+sed -i 's/DB_DATABASE=.*/DB_DATABASE=laravel-db/' $PROJECT/.env
+
 echo "Done"
 sudo netstat -plunt
 docker ps -a
